@@ -233,9 +233,8 @@ def run_pipeline(input_path: str, output_path: str, use_mcp: bool = True, use_ll
 
                 explanation = (
                     f"Line {finding.bug_line}: {finding.bug_type} — "
-                    f"{finding.reasoning[:200]}"
+                    f"{finding.reasoning[:350]}"
                     f"{mcp_cite}"
-                    f" | Impact: Potential API misuse detected."
                 )
 
                 violations[sample.id] = RuleViolation(

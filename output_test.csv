@@ -1,0 +1,21 @@
+ID,Bug Line,Explanation
+101,1,"Wrong vector edit mode: when copyLabel() is used, vecEditMode must be TA::VTT, not TA::VECD. VTT mode is required for label-based vector editing."
+102,1,Potential API misuse detected in code snippet.
+103,1,"iClamp argument order error: iClamp(20.0, -20.0) has low and high values exchanged. First argument should be the low clamp, second should be high. Correct: iClamp(-20.0, 20.0)."
+104,2,Wrong terminal method: 'read()' should be 'execute()' in this RDI measurement chain. DC and func operations require .execute() to complete.
+105,1,Potential API misuse detected in code snippet.
+106,1,Missing parameter: getAlarmValue() requires a pin name string parameter.
+107,1,Incorrect function name: '.imeas()' should be '.iMeas()'. This is a known API naming error.
+108,3,"Incorrect chain order: 'rdi.burstUpload.smartVec()' should be 'rdi.smartVec().burstUpload()'. burstUpload() is a method of smartVec, not the other way around."
+109,1,Pin name mismatch: pin 'D1' in setup (line 1) does not match 'DI' in retrieval (line 2). These look like they should be the same pin (possible typo: 'D1' vs 'DI').
+110,1,Extra parameter: readTempThresh() takes no parameters. Remove the argument to fix this API call.
+111,1,Range overflow: vForce(31.0 V) exceeds vForceRange(30.0 V). The programmed force value must always match the selected range to avoid range overflow warnings.
+112,1,Potential API misuse detected in code snippet.
+113,1,Incorrect function name: '.push_forward()' should be '.push_back()'. This is a known API naming error.
+114,3,"Scope violation: retrievePmuxPinStatus() should be called after RDI_END(), not inside the RDI_BEGIN/RDI_END block. Status retrieval requires the execution block to complete first."
+115,1,"digCapBurstSiteUpload should be set to true for uploads. Currently set to false, should be true."
+116,1,Sample count 9000 exceeds maximum allowed value of 8192.
+117,1,Invalid function name 'getFFC()' — this appears to be a corrupted API name. The closest valid function is 'getFFV()'.
+118,1,Potential API misuse detected in code snippet.
+119,1,Potential API misuse detected in code snippet.
+120,1,Potential API misuse detected in code snippet.

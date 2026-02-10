@@ -1,0 +1,44 @@
+ID,Code,Context
+101,"rdi.smartVec().vecEditMode(TA::VECD);
+
+RDI_BEGIN();
+rdi.smartVec()
+    .label(""LBL_RT"").copyLabel(true).pin(""A"")
+    .writeData(""rt"",4,0)
+    .execute();
+RDI_END();",SmartVec runtime vector editing
+102,"RDI_BEGIN();
+rdi.dc().pin(""dig1"").vForce(1 V);
+RDI_END();",DC force configuration lifecycle
+103,"rdi.dc().pin(""VS"").iClamp(20 mA,-20 mA).execute();",DC clamp configuration
+104,"RDI_BEGIN();
+rdi.dc().pin(""DPS_1"").iMeas().read();
+RDI_END();",DC measurement execution
+105,"ARRAY_I data(2);
+data[0]=1; data[1]=2;
+rdi.runTimeVal(""rt"",data);
+rdi.protocol().pname(""i2c"").write(0x10,""rt"").execute();",Protocol runtime write lifecycle
+106,"double v = rdi.id(""a"").getAlarmValue();",DC alarm result retrieval
+107,"rdi.dc().pin(""DPS_1"").imeas().execute();",DC API naming
+108,"rdi.smartVec(""id"").burstUpload().begin();
+rdi.smartVec(""id"").readBit(1,1).execute();
+rdi.burstUpload.smartVec().end();",SmartVec burst upload aggregation
+109,"rdi.digCap(""cap"").pin(""D1"").samples(64).execute();
+ARRAY_I a = rdi.id(""cap"").getVector(""DI"");",Digital capture pin naming
+110,"rdi.pmux(1).module(""01"").readTempThresh(60).execute();",PMUX temperature threshold read
+111,"rdi.dc().pin(""VS"").vForce(31 V).vForceRange(30 V).execute();",AVI64 voltage range compliance
+112,"rdi.dc().pin(""P1"").waveform(w1).addWaveform(w2);",DC waveform execution
+113,"vec.push_forward(""LBL1"");",Runtime burst patching
+114,"RDI_BEGIN();
+rdi.route().pin(""P01"").setOn().execute();
+rdi.route().retrievePmuxPinStatus(""P01"");
+RDI_END();",PMUX routing status
+115,"rdi.digCapBurstSiteUpload(false);
+rdi.digCap(1).pin(""DATA1"").samples(512).execute();",Digital capture upload control
+116,"rdi.digCap(1).pin(""DATA"").samples(9000).execute();",Digital capture sample constraint
+117,"int v = rdi.id(""e1"").getFFC();",EMAP first fail vector retrieval
+118,rdi.smartVec().readMode(TA::EMAP);,SmartVec read mode configuration
+119,"RDI_BEGIN();
+rdi.dc().pin(""dig1"").vForce(1 V).execute();",RDI lifecycle management
+120,"rdi.port(""A"").func(""idd"").burstRunTime(""rt"",100).execute();
+ARRAY_I a = rdi.id(""id"").getMultiPassFail();",Multi-port functional burst

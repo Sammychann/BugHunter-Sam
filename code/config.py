@@ -19,6 +19,16 @@ MCP_QUERY_TOP_K = 5
 MCP_TIMEOUT_SECONDS = 30
 MCP_ENABLED = True
 
+# ── Load .env if present (local dev) ───────────────────────
+ENV_FILE = os.path.join(BASE_DIR, ".env")
+if os.path.exists(ENV_FILE):
+    with open(ENV_FILE, "r") as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                key, value = line.split("=", 1)
+                os.environ[key] = value
+
 # ── Groq / LLM Fallback ───────────────────────────────────
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 GROQ_MODEL = "openai/gpt-oss-120b"

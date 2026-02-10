@@ -282,3 +282,219 @@ def _check_rdi_vforce_numeric_argument(lines, code, sample):
                 return (line_obj.line_number, explanation, 0.96)
     return None
 
+
+# ── Rule: missing_execute ──────────────────────────────────────
+# Hash: 523dd05d00a41a9e
+# Learned: 2026-02-10 13:55:30
+# Severity: HIGH
+# Source: LLM (Groq OSS-120B) + MCP Validation
+# Description: Ensures that any RDI command chain (e.g., dc, ac, vec) is concluded with a .execute() call before ending the lifecycle.
+@register_rule("missing_execute")
+def _check_missing_execute(lines, code, sample):
+    """
+    Ensures that any RDI command chain (e.g., dc, ac, vec) is concluded with a .execute() call before ending the lifecycle.
+    Detection: rdi\.[a-zA-Z]+\([^)]*\)(?!.*\.execute\(\))
+    """
+    try:
+        pattern = re.compile(r"""rdi\.[a-zA-Z]+\([^)]*\)(?!.*\.execute\(\))""", re.IGNORECASE)
+        for line_obj in lines:
+            if pattern.search(line_obj.stripped):
+                explanation = (
+                    f"Line {line_obj.line_number}: missing_execute — Ensures that any RDI command chain (e.g., dc, ac, vec) is concluded with a .execute() call before ending the lifecycle."
+                    f" |"
+                    f" | Impact: Potential API misuse detected."
+                )
+                return (line_obj.line_number, explanation, 0.96)
+    except re.error:
+        # If the pattern is not valid regex, use substring matching
+        search_term = """rdi\.[a-zA-Z]+\([^)]*\)(?!.*\.execute\(\))""".lower()
+        for line_obj in lines:
+            if search_term in line_obj.stripped.lower():
+                explanation = (
+                    f"Line {line_obj.line_number}: missing_execute — Ensures that any RDI command chain (e.g., dc, ac, vec) is concluded with a .execute() call before ending the lifecycle."
+                    f" |"
+                    f" | Impact: Potential API misuse detected."
+                )
+                return (line_obj.line_number, explanation, 0.96)
+    return None
+
+
+# ── Rule: run_time_val_array_not_allowed ──────────────────────────────────────
+# Hash: 36e36fa0d27d89cd
+# Learned: 2026-02-10 13:55:32
+# Severity: HIGH
+# Source: LLM (Groq OSS-120B) + MCP Validation
+# Description: Ensures that rdi.runTimeVal is called only with scalar numeric arguments, not with array or container types.
+@register_rule("run_time_val_array_not_allowed")
+def _check_run_time_val_array_not_allowed(lines, code, sample):
+    """
+    Ensures that rdi.runTimeVal is called only with scalar numeric arguments, not with array or container types.
+    Detection: rdi\.runTimeVal\s*\(\s*\"[^\"]+\"\s*,\s*[^\)]+\)\s*;\s*// flag if second argument is of type ARRAY_ or std::vector
+    """
+    try:
+        pattern = re.compile(r"""rdi\.runTimeVal\s*\(\s*\"[^\"]+\"\s*,\s*[^\)]+\)\s*;\s*// flag if second argument is of type ARRAY_ or std::vector""", re.IGNORECASE)
+        for line_obj in lines:
+            if pattern.search(line_obj.stripped):
+                explanation = (
+                    f"Line {line_obj.line_number}: invalid_argument_type — Ensures that rdi.runTimeVal is called only with scalar numeric arguments, not with array or container types."
+                    f" |"
+                    f" | Impact: Potential API misuse detected."
+                )
+                return (line_obj.line_number, explanation, 0.94)
+    except re.error:
+        # If the pattern is not valid regex, use substring matching
+        search_term = """rdi\.runTimeVal\s*\(\s*\"[^\"]+\"\s*,\s*[^\)]+\)\s*;\s*// flag if second argument is of type ARRAY_ or std::vector""".lower()
+        for line_obj in lines:
+            if search_term in line_obj.stripped.lower():
+                explanation = (
+                    f"Line {line_obj.line_number}: invalid_argument_type — Ensures that rdi.runTimeVal is called only with scalar numeric arguments, not with array or container types."
+                    f" |"
+                    f" | Impact: Potential API misuse detected."
+                )
+                return (line_obj.line_number, explanation, 0.94)
+    return None
+
+
+# ── Rule: dc_chain_requires_execute ──────────────────────────────────────
+# Hash: 370e692e808e006e
+# Learned: 2026-02-10 13:55:34
+# Severity: HIGH
+# Source: LLM (Groq OSS-120B) + MCP Validation
+# Description: All RDI DC configuration chains must end with a call to .execute() to commit the settings.
+@register_rule("dc_chain_requires_execute")
+def _check_dc_chain_requires_execute(lines, code, sample):
+    """
+    All RDI DC configuration chains must end with a call to .execute() to commit the settings.
+    Detection: rdi\.dc\(\).*\.(?!execute\(\)).*$
+    """
+    try:
+        pattern = re.compile(r"""rdi\.dc\(\).*\.(?!execute\(\)).*$""", re.IGNORECASE)
+        for line_obj in lines:
+            if pattern.search(line_obj.stripped):
+                explanation = (
+                    f"Line {line_obj.line_number}: missing_execute — All RDI DC configuration chains must end with a call to .execute() to commit the settings."
+                    f" |"
+                    f" | Impact: Potential API misuse detected."
+                )
+                return (line_obj.line_number, explanation, 0.96)
+    except re.error:
+        # If the pattern is not valid regex, use substring matching
+        search_term = """rdi\.dc\(\).*\.(?!execute\(\)).*$""".lower()
+        for line_obj in lines:
+            if search_term in line_obj.stripped.lower():
+                explanation = (
+                    f"Line {line_obj.line_number}: missing_execute — All RDI DC configuration chains must end with a call to .execute() to commit the settings."
+                    f" |"
+                    f" | Impact: Potential API misuse detected."
+                )
+                return (line_obj.line_number, explanation, 0.96)
+    return None
+
+
+# ── Rule: missing_execute ──────────────────────────────────────
+# Hash: 0ec0778d898a08fd
+# Learned: 2026-02-10 13:55:36
+# Severity: HIGH
+# Source: LLM (Groq OSS-120B) + MCP Validation
+# Description: Ensures that any RDI/SmartRDI configuration chain (e.g., dc(), smartVec(), etc.) ends with an .execute() call before the statement terminates.
+@register_rule("missing_execute")
+def _check_missing_execute(lines, code, sample):
+    """
+    Ensures that any RDI/SmartRDI configuration chain (e.g., dc(), smartVec(), etc.) ends with an .execute() call before the statement terminates.
+    Detection: rdi\.[a-zA-Z]+\([^\)]*\)(?:\.[a-zA-Z_]+\([^\)]*\))*\s*;(?!.*\.execute\s*\()
+    """
+    try:
+        pattern = re.compile(r"""rdi\.[a-zA-Z]+\([^\)]*\)(?:\.[a-zA-Z_]+\([^\)]*\))*\s*;(?!.*\.execute\s*\()""", re.IGNORECASE)
+        for line_obj in lines:
+            if pattern.search(line_obj.stripped):
+                explanation = (
+                    f"Line {line_obj.line_number}: missing_execute — Ensures that any RDI/SmartRDI configuration chain (e.g., dc(), smartVec(), etc.) ends with an .execute() call before the statement terminates."
+                    f" |"
+                    f" | Impact: Potential API misuse detected."
+                )
+                return (line_obj.line_number, explanation, 0.94)
+    except re.error:
+        # If the pattern is not valid regex, use substring matching
+        search_term = """rdi\.[a-zA-Z]+\([^\)]*\)(?:\.[a-zA-Z_]+\([^\)]*\))*\s*;(?!.*\.execute\s*\()""".lower()
+        for line_obj in lines:
+            if search_term in line_obj.stripped.lower():
+                explanation = (
+                    f"Line {line_obj.line_number}: missing_execute — Ensures that any RDI/SmartRDI configuration chain (e.g., dc(), smartVec(), etc.) ends with an .execute() call before the statement terminates."
+                    f" |"
+                    f" | Impact: Potential API misuse detected."
+                )
+                return (line_obj.line_number, explanation, 0.94)
+    return None
+
+
+# ── Rule: missing_lifecycle_end ──────────────────────────────────────
+# Hash: e0f9f51b26c99ba1
+# Learned: 2026-02-10 13:55:38
+# Severity: HIGH
+# Source: LLM (Groq OSS-120B) + MCP Validation
+# Description: Ensures that every RDI_BEGIN() is paired with a corresponding RDI_END() within the same scope.
+@register_rule("missing_lifecycle_end")
+def _check_missing_lifecycle_end(lines, code, sample):
+    """
+    Ensures that every RDI_BEGIN() is paired with a corresponding RDI_END() within the same scope.
+    Detection: Detect a call to RDI_BEGIN() without a subsequent RDI_END() before the end of the function or block.
+    """
+    try:
+        pattern = re.compile(r"""Detect a call to RDI_BEGIN() without a subsequent RDI_END() before the end of the function or block.""", re.IGNORECASE)
+        for line_obj in lines:
+            if pattern.search(line_obj.stripped):
+                explanation = (
+                    f"Line {line_obj.line_number}: missing_lifecycle_end — Ensures that every RDI_BEGIN() is paired with a corresponding RDI_END() within the same scope."
+                    f" |"
+                    f" | Impact: Potential API misuse detected."
+                )
+                return (line_obj.line_number, explanation, 0.96)
+    except re.error:
+        # If the pattern is not valid regex, use substring matching
+        search_term = """Detect a call to RDI_BEGIN() without a subsequent RDI_END() before the end of the function or block.""".lower()
+        for line_obj in lines:
+            if search_term in line_obj.stripped.lower():
+                explanation = (
+                    f"Line {line_obj.line_number}: missing_lifecycle_end — Ensures that every RDI_BEGIN() is paired with a corresponding RDI_END() within the same scope."
+                    f" |"
+                    f" | Impact: Potential API misuse detected."
+                )
+                return (line_obj.line_number, explanation, 0.96)
+    return None
+
+
+# ── Rule: consistent_identifier_usage ──────────────────────────────────────
+# Hash: 4e622b097e8de2ce
+# Learned: 2026-02-10 13:55:41
+# Severity: HIGH
+# Source: LLM (Groq OSS-120B) + MCP Validation
+# Description: Ensures that the identifier string used in measurement setup (e.g., func, pin, digCap) matches the identifier used in subsequent retrieval calls (e.g., id, get...).
+@register_rule("consistent_identifier_usage")
+def _check_consistent_identifier_usage(lines, code, sample):
+    """
+    Ensures that the identifier string used in measurement setup (e.g., func, pin, digCap) matches the identifier used in subsequent retrieval calls (e.g., id, get...).
+    Detection: Look for a setup chain containing .func\(\"([^\"]+)\"\).* followed by a later call .id\(\"(?!\1)[^\"]+\"\)
+    """
+    try:
+        pattern = re.compile(r"""Look for a setup chain containing .func\(\"([^\"]+)\"\).* followed by a later call .id\(\"(?!\1)[^\"]+\"\)""", re.IGNORECASE)
+        for line_obj in lines:
+            if pattern.search(line_obj.stripped):
+                explanation = (
+                    f"Line {line_obj.line_number}: variable_mismatch — Ensures that the identifier string used in measurement setup (e.g., func, pin, digCap) matches the identifier used in subsequent retrieval calls (e.g., id, get...)."
+                    f" |"
+                    f" | Impact: Potential API misuse detected."
+                )
+                return (line_obj.line_number, explanation, 0.96)
+    except re.error:
+        # If the pattern is not valid regex, use substring matching
+        search_term = """Look for a setup chain containing .func\(\"([^\"]+)\"\).* followed by a later call .id\(\"(?!\1)[^\"]+\"\)""".lower()
+        for line_obj in lines:
+            if search_term in line_obj.stripped.lower():
+                explanation = (
+                    f"Line {line_obj.line_number}: variable_mismatch — Ensures that the identifier string used in measurement setup (e.g., func, pin, digCap) matches the identifier used in subsequent retrieval calls (e.g., id, get...)."
+                    f" |"
+                    f" | Impact: Potential API misuse detected."
+                )
+                return (line_obj.line_number, explanation, 0.96)
+    return None
+

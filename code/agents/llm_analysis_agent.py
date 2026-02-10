@@ -45,8 +45,8 @@ You MUST respond with ONLY a valid JSON object (no markdown, no explanation outs
 {
   "bug_detected": true or false,
   "bug_line": <1-indexed line number where the bug manifests>,
-  "bug_type": "<short label like 'wrong_argument_order' or 'invalid_api_call'>",
-  "reasoning": "<step-by-step reasoning for why this line is incorrect>",
+  "bug_type": "<short snake_case label, e.g., 'missing_lifecycle_call', 'variable_mismatch'>",
+  "reasoning": "<concise but precise explanation of the error>",
   "confidence": <float between 0.0 and 1.0>,
   "suggested_rule": {
     "rule_name": "<snake_case_name>",
@@ -56,12 +56,36 @@ You MUST respond with ONLY a valid JSON object (no markdown, no explanation outs
   }
 }
 
+== COMMON BUG CATEGORIES TO CHECK ==
+1. **Lifecycle**: Missing `RDI_BEGIN()` or `RDI_END()`.
+2. **Variable Consistency**: Pin names/Port names must match string literals (e.g. `rdi.digCap("cap")` vs `rdi.id("cap")`).
+3. **Argument Validity**: Check for valid enums (`TA::VTT` vs `TA::VECD`), valid units (mA, V), and correct types.
+4. **Ordering**: `iClamp(low, high)`, `RDI_BEGIN` comes first, `execute()` must be called on chains.
+5. **Typos**: `iMeans` -> `iMeas`, `readHumanSeniority` -> `readHumSensor`.
+6. **Bad Values**: `vForce` > `vForceRange`, `samples` > 8192.
+
+== EXAMPLES ==
+Code:
+  rdi.dc().pin("d1").vForce(1 V);
+Bug:
+  {"bug_detected": true, "bug_line": 1, "bug_type": "missing_execute", "reasoning": "DC force configuration chain must end with .execute().", "confidence": 0.95, ...}
+
+Code:
+  rdi.smartVec().vecEditMode(TA::VECD);
+Bug:
+  {"bug_detected": true, "bug_line": 1, "bug_type": "invalid_enum", "reasoning": "vecEditMode requires TA::VTT for vector editing context, not TA::VECD.", "confidence": 0.9, ...}
+
+Code:
+  RDI_BEGIN();
+  rdi.port("A").func("idd").burstRunTime("rt", 100).execute();
+  auto x = rdi.id("id").getMultiPassFail();
+Bug:
+  {"bug_detected": true, "bug_line": 2, "bug_type": "variable_mismatch", "reasoning": "Retrieval uses rdi.id(\"id\") but setup used func(\"idd\"). Identifiers must match.", "confidence": 0.9, ...}
+
 Rules:
 - Identify the FIRST line where the bug manifests
-- Focus on RDI API misuse: wrong method names, incorrect parameters, invalid values, ordering errors
-- If you find no bug, set bug_detected to false and bug_line to 0
-- Be conservative: only report bugs you are confident about
-- The suggested_rule should describe how to detect this class of bug deterministically"""
+- If you find no bug, set bug_detected to false
+- Rate confidence HIGH (0.9+) for syntax/API misuse, MEDIUM (0.7+) for logic/context errors"""
 
 
 class LLMCodeAnalysisAgent:

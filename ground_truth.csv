@@ -1,0 +1,70 @@
+ID,Code,Correct Code,Context,Explanation
+101,"rdi.smartVec().vecEditMode(TA::VECD);
+
+RDI_BEGIN();
+rdi.smartVec()
+    .label(""LBL_RT"").copyLabel(true).pin(""A"")
+    .writeData(""rt"",4,0)
+    .execute();
+RDI_END();","rdi.smartVec().vecEditMode(TA::VTT);
+
+RDI_BEGIN();
+rdi.smartVec()
+    .label(""LBL_RT"").copyLabel(true).pin(""A"")
+    .writeData(""rt"",4,0)
+    .execute();
+RDI_END();",SmartVec runtime vector editing,BUG: vecEditMode must be VTT when runtime label copy is used. VECD causes undefined behavior.
+102,"RDI_BEGIN();
+rdi.dc().pin(""dig1"").vForce(1 V);
+RDI_END();","RDI_BEGIN();
+rdi.dc().pin(""dig1"").vForce(1 V).execute();
+RDI_END();",DC force configuration lifecycle,BUG: execute() is missing after DC force setup.
+103,"rdi.dc().pin(""VS"").iClamp(20 mA,-20 mA).execute();","rdi.dc().pin(""VS"").iClamp(-20 mA,20 mA).execute();",DC clamp configuration,"BUG: iClamp limits reversed, causing clamp overflow."
+104,"RDI_BEGIN();
+rdi.dc().pin(""DPS_1"").iMeas().read();
+RDI_END();","RDI_BEGIN();
+rdi.dc().pin(""DPS_1"").iMeas().execute();
+RDI_END();",DC measurement execution,BUG: Using read() instead of execute() in measurement chain.
+105,"ARRAY_I data(2);
+data[0]=1; data[1]=2;
+rdi.runTimeVal(""rt"",data);
+rdi.protocol().pname(""i2c"").write(0x10,""rt"").execute();","ARRAY_I data(2);
+data[0]=1; data[1]=2;
+rdi.runTimeVal(""rt"",data);
+RDI_BEGIN();
+rdi.protocol().pname(""i2c"").write(0x10,""rt"").execute();
+RDI_END();",Protocol runtime write lifecycle,BUG: Missing RDI_BEGIN before runtime protocol write.
+106,"double v = rdi.id(""a"").getAlarmValue();","double v = rdi.id(""a"").getAlarmValue(""AVI"");",DC alarm result retrieval,BUG: getAlarmValue() called without specifying pin name.
+107,"rdi.dc().pin(""DPS_1"").imeas().execute();","rdi.dc().pin(""DPS_1"").iMeas().execute();",DC API naming,BUG: Incorrect function casing imeas() instead of iMeas().
+108,"rdi.smartVec(""id"").burstUpload().begin();
+rdi.smartVec(""id"").readBit(1,1).execute();
+rdi.burstUpload.smartVec().end();","rdi.smartVec(""id"").burstUpload().begin();
+rdi.smartVec(""id"").readBit(1,1).execute();
+rdi.smartVec().burstUpload().end();",SmartVec burst upload aggregation,BUG: burstUpload end called with wrong scope.
+109,"rdi.digCap(""cap"").pin(""D1"").samples(64).execute();
+ARRAY_I a = rdi.id(""cap"").getVector(""DI"");","rdi.digCap(""cap"").pin(""DI"").samples(64).execute();
+ARRAY_I a = rdi.id(""cap"").getVector(""DI"");",Digital capture pin naming,BUG: Pin name mismatch between capture and retrieval.
+110,"rdi.pmux(1).module(""01"").readTempThresh(60).execute();","rdi.pmux(1).module(""01"").readTempThresh().execute();",PMUX temperature threshold read,BUG: readTempThresh() does not take parameters.
+111,"rdi.dc().pin(""VS"").vForce(31 V).vForceRange(30 V).execute();","rdi.dc().pin(""VS"").vForce(30 V).vForceRange(30 V).execute();",AVI64 voltage range compliance,BUG: vForce exceeds configured voltage range.
+112,"rdi.dc().pin(""P1"").waveform(w1).addWaveform(w2);","rdi.dc().pin(""P1"").waveform(w1).addWaveform(w2).execute();",DC waveform execution,BUG: Missing execute() after waveform chaining.
+113,"vec.push_forward(""LBL1"");","vec.push_back(""LBL1"");",Runtime burst patching,BUG: push_forward() API removed. Use push_back().
+114,"RDI_BEGIN();
+rdi.route().pin(""P01"").setOn().execute();
+rdi.route().retrievePmuxPinStatus(""P01"");
+RDI_END();","RDI_BEGIN();
+rdi.route().pin(""P01"").setOn().execute();
+RDI_END();
+rdi.route().retrievePmuxPinStatus(""P01"");",PMUX routing status,BUG: retrievePmuxPinStatus called before transaction end.
+115,"rdi.digCapBurstSiteUpload(false);
+rdi.digCap(1).pin(""DATA1"").samples(512).execute();","rdi.digCapBurstSiteUpload(true);
+rdi.digCap(1).pin(""DATA1"").samples(512).execute();",Digital capture upload control,BUG: digCapBurstSiteUpload disabled while requesting upload.
+116,"rdi.digCap(1).pin(""DATA"").samples(9000).execute();","rdi.digCap(1).pin(""DATA"").samples(8192).execute();",Digital capture sample constraint,BUG: Sample count exceeds maximum supported limit.
+117,"int v = rdi.id(""e1"").getFFC();","int v = rdi.id(""e1"").getFFV();",EMAP first fail vector retrieval,BUG: getFFV() replaced incorrectly with getFFC().
+118,rdi.smartVec().readMode(TA::EMAP);,rdi.smartVec().readMode(TA::DIGCAP);,SmartVec read mode configuration,BUG: Wrong readMode used for digital capture.
+119,"RDI_BEGIN();
+rdi.dc().pin(""dig1"").vForce(1 V).execute();","RDI_BEGIN();
+rdi.dc().pin(""dig1"").vForce(1 V).execute();
+RDI_END();",RDI lifecycle management,BUG: Missing RDI_END leads to session leakage.
+120,"rdi.port(""A"").func(""idd"").burstRunTime(""rt"",100).execute();
+ARRAY_I a = rdi.id(""id"").getMultiPassFail();","rdi.port(""A"").func(""id"").burstRunTime(""rt"",100).execute();
+ARRAY_I a = rdi.id(""id"").getMultiPassFail();",Multi-port functional burst,BUG: Port name mismatch between initialization and runtime.
