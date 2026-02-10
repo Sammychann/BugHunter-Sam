@@ -5,10 +5,21 @@ Agentic Bug Hunter — Coordinator (Main Entry Point)
 Orchestrates the full bug detection pipeline by invoking
 each specialized agent in sequence.
 
-Pipeline:
+Pipeline (Hybrid — Deterministic-First, LLM Fallback):
     IngestionAgent → ContextInferenceAgent → MCPRetrievalAgent
                                                     ↓
-    CSV Writer ← ExplanationAgent ← CodeAnalysisAgent
+                                          CodeAnalysisAgent
+                                                    ↓
+                                          [BUG FOUND?]
+                                          ├── YES → ExplanationAgent → CSV
+                                          └── NO  → LLMCodeAnalysisAgent
+                                                    ↓
+                                              MCPValidatorAgent
+                                                    ↓
+                                              [VALIDATED?]
+                                              ├── NO  → default
+                                              └── YES → ExplanationAgent
+                                                        + RuleLearningAgent → CSV
 
 Usage:
     # Start MCP server first (separate terminal):
@@ -19,6 +30,9 @@ Usage:
 
     # Run without MCP server (rules-only mode):
     python code/main.py --no-mcp
+
+    # Run without LLM fallback:
+    python code/main.py --no-llm
 ============================================================
 """
 
@@ -37,6 +51,10 @@ from agents.context_agent import ContextInferenceAgent
 from agents.mcp_retrieval_agent import MCPRetrievalAgent
 from agents.code_analysis_agent import CodeAnalysisAgent
 from agents.explanation_agent import ExplanationAgent
+from agents.llm_analysis_agent import LLMCodeAnalysisAgent
+from agents.mcp_validator_agent import MCPValidatorAgent
+from agents.rule_learning_agent import RuleLearningAgent
+from models.data_models import RuleViolation
 from utils.csv_utils import write_output_csv, validate_output_csv
 
 # ── Logging Setup ──────────────────────────────────────────
@@ -52,9 +70,10 @@ def banner():
     """Print startup banner."""
     print()
     print("=" * 60)
-    print("   🔍 Agentic Bug Hunter")
-    print("   Rule-Based C++ Bug Detection System")
-    print("   Infineon Challenge — Static Analysis + MCP")
+    print("   [*] Agentic Bug Hunter")
+    print("   Hybrid C++ Bug Detection System")
+    print("   Deterministic Rules + LLM Fallback + MCP")
+    print('   "LLM proposes, MCP validates, rules enforce."')
     print("=" * 60)
     print()
 
@@ -79,10 +98,15 @@ def parse_args():
         action="store_true",
         help="Skip MCP server queries (rules-only mode)"
     )
+    parser.add_argument(
+        "--no-llm",
+        action="store_true",
+        help="Skip LLM fallback (deterministic rules only)"
+    )
     return parser.parse_args()
 
 
-def run_pipeline(input_path: str, output_path: str, use_mcp: bool = True):
+def run_pipeline(input_path: str, output_path: str, use_mcp: bool = True, use_llm: bool = True):
     """
     Execute the full bug detection pipeline.
 
@@ -146,6 +170,97 @@ def run_pipeline(input_path: str, output_path: str, use_mcp: bool = True):
     logger.info(f"Code analysis complete for {len(violations)} samples.\n")
 
     # ══════════════════════════════════════════════════════
+    # PHASE 2.5: LLM Fallback (for unmatched samples)
+    # ══════════════════════════════════════════════════════
+    llm_upgraded = 0
+    llm_rejected = 0
+    rules_learned = 0
+
+    if use_llm:
+        logger.info("═" * 50)
+        logger.info("PHASE 2.5: LLM Fallback Analysis")
+        logger.info("═" * 50)
+
+        # Count how many samples need LLM
+        unmatched = [
+            s for s in samples
+            if violations[s.id].rule_name == "no_match"
+        ]
+        logger.info(f"  {len(unmatched)} sample(s) need LLM fallback.")
+
+        if unmatched:
+            llm_agent = LLMCodeAnalysisAgent()
+            mcp_validator = MCPValidatorAgent()
+            rule_learner = RuleLearningAgent()
+
+            for sample in unmatched:
+                # ── Stage 2A: LLM Analysis ─────────────────
+                finding = llm_agent.analyze(
+                    sample=sample,
+                    context=contexts[sample.id],
+                    mcp_results=mcp_results[sample.id],
+                )
+
+                if not finding or not finding.bug_detected:
+                    logger.info(
+                        f"  ID={sample.id}: LLM found no bug, keeping default."
+                    )
+                    continue
+
+                # ── Stage 2B: MCP Validation ───────────────
+                validation = mcp_validator.validate(
+                    finding=finding,
+                    mcp_results=mcp_results[sample.id],
+                    sample=sample,
+                )
+
+                if not validation.validated:
+                    logger.info(
+                        f"  ID={sample.id}: MCP rejected LLM finding — "
+                        f"{validation.validation_reason}"
+                    )
+                    llm_rejected += 1
+                    continue
+
+                # ── Stage 2C: Upgrade the violation ────────
+                # Build MCP citation
+                mcp_cite = ""
+                if validation.supporting_docs:
+                    mcp_cite = (
+                        f" | According to documentation: "
+                        f"{validation.supporting_docs[0][:100]}"
+                    )
+
+                explanation = (
+                    f"Line {finding.bug_line}: {finding.bug_type} — "
+                    f"{finding.reasoning[:200]}"
+                    f"{mcp_cite}"
+                    f" | Impact: Potential API misuse detected."
+                )
+
+                violations[sample.id] = RuleViolation(
+                    rule_name=f"llm_{finding.bug_type}",
+                    line_number=finding.bug_line,
+                    line_content="",
+                    explanation=explanation,
+                    confidence=finding.confidence,
+                    severity="warning",
+                )
+                llm_upgraded += 1
+
+                # ── Stage 2D: Learn the rule ───────────────
+                learned = rule_learner.learn(finding, validation)
+                if learned:
+                    rules_learned += 1
+
+        logger.info(
+            f"LLM fallback complete: {llm_upgraded} upgraded, "
+            f"{llm_rejected} rejected, {rules_learned} rules learned.\n"
+        )
+    else:
+        logger.info("LLM fallback disabled (--no-llm flag).\n")
+
+    # ══════════════════════════════════════════════════════
     # PHASE 3: Explanation & Output Generation
     # ══════════════════════════════════════════════════════
     logger.info("═" * 50)
@@ -173,12 +288,12 @@ def run_pipeline(input_path: str, output_path: str, use_mcp: bool = True):
     logger.info("PHASE 4: Validation & Summary")
     logger.info("═" * 50)
 
-    validation = validate_output_csv(output_file)
-    if validation["valid"]:
+    csv_validation = validate_output_csv(output_file)
+    if csv_validation["valid"]:
         logger.info("✓ Output CSV validation PASSED")
     else:
         logger.warning("✗ Output CSV validation FAILED:")
-        for error in validation["errors"]:
+        for error in csv_validation["errors"]:
             logger.warning(f"  - {error}")
 
     # ── Print summary ──────────────────────────────────────
@@ -189,9 +304,13 @@ def run_pipeline(input_path: str, output_path: str, use_mcp: bool = True):
     print("=" * 60)
     print(f"   Samples processed:  {len(samples)}")
     print(f"   Reports generated:  {len(reports)}")
+    print(f"   LLM upgrades:       {llm_upgraded}")
+    print(f"   LLM rejected:       {llm_rejected}")
+    print(f"   Rules learned:      {rules_learned}")
     print(f"   Output file:        {output_file}")
     print(f"   MCP integration:    {'active' if use_mcp else 'disabled'}")
-    print(f"   Validation:         {'PASSED' if validation['valid'] else 'FAILED'}")
+    print(f"   LLM fallback:       {'active' if use_llm else 'disabled'}")
+    print(f"   Validation:         {'PASSED' if csv_validation['valid'] else 'FAILED'}")
     print(f"   Total time:         {elapsed:.2f}s")
     print("=" * 60)
     print()
@@ -214,10 +333,13 @@ if __name__ == "__main__":
 
     try:
         config.MCP_ENABLED = not args.no_mcp
+        if args.no_llm:
+            config.LLM_FALLBACK_ENABLED = False
         run_pipeline(
             input_path=args.input,
             output_path=args.output,
             use_mcp=not args.no_mcp,
+            use_llm=not args.no_llm and config.LLM_FALLBACK_ENABLED,
         )
     except FileNotFoundError as e:
         logger.error(f"File not found: {e}")

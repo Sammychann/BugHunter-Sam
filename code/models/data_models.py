@@ -82,3 +82,43 @@ class BugReport:
     id: int
     bug_line: int
     explanation: str
+
+
+@dataclass
+class SuggestedRule:
+    """
+    A rule suggestion from the LLM for future deterministic detection.
+    Produced by: LLMCodeAnalysisAgent
+    Consumed by: RuleLearningAgent
+    """
+    rule_name: str              # snake_case identifier
+    description: str            # What this rule enforces
+    detection_pattern: str      # Regex or logic description
+    severity: str = "HIGH"      # CRITICAL, HIGH, MEDIUM, LOW
+
+
+@dataclass
+class LLMFinding:
+    """
+    Structured output from LLM code analysis.
+    Produced by: LLMCodeAnalysisAgent
+    Consumed by: MCPValidatorAgent, ExplanationAgent
+    """
+    bug_detected: bool
+    bug_line: int = 0
+    bug_type: str = ""
+    reasoning: str = ""
+    confidence: float = 0.0
+    suggested_rule: Optional[SuggestedRule] = None
+
+
+@dataclass
+class MCPValidation:
+    """
+    Validation result from MCP documentation check.
+    Produced by: MCPValidatorAgent
+    Consumed by: main.py pipeline, RuleLearningAgent
+    """
+    validated: bool
+    supporting_docs: List[str] = field(default_factory=list)
+    validation_reason: str = ""

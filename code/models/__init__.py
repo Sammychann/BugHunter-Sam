@@ -6,6 +6,9 @@ from .data_models import (
     MCPResult,
     RuleViolation,
     BugReport,
+    SuggestedRule,
+    LLMFinding,
+    MCPValidation,
 )
 
 __all__ = [
@@ -15,4 +18,8 @@ __all__ = [
     "MCPResult",
     "RuleViolation",
     "BugReport",
+    "SuggestedRule",
+    "LLMFinding",
+    "MCPValidation",
 ]
+

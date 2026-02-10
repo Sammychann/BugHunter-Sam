@@ -23,6 +23,7 @@ Thumbs.db
 
 # Output files
 output.csv
+output2.csv
 
 # Logs
 *.log

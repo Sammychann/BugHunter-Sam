@@ -1,23 +1,23 @@
 # 🔍 Agentic Bug Hunter
 
-> **Deterministic, rule-based bug detection for C++ RDI/SmartRDI code.**  
-> Built for the Infineon "Agentic Bug Hunter" Challenge.
+> **Hybrid C++ bug detection for RDI/SmartRDI code.**
+> Deterministic rules first. LLM fallback second. MCP validation always.
+>
+> **"LLM proposes, MCP validates, rules enforce."**
 
 ---
 
-## Why No LLM?
+## Why Deterministic-First Design?
 
-This system **intentionally avoids Large Language Models (LLMs)** for bug detection:
-
-| Concern | LLM Approach | Our Approach |
+| Concern | LLM-Only | Our Hybrid Approach |
 |---|---|---|
-| **Determinism** | Same input → different output | Same input → same output, always |
-| **Explainability** | "The model thinks…" | "Rule X fired because condition Y was met on line Z" |
-| **Reliability** | Hallucinations possible | Only reports what rules explicitly detect |
-| **Speed** | API latency, token costs | Sub-second per sample |
-| **Auditability** | Black box | Every detection traceable to a named rule |
+| **Determinism** | Same input → different output | Rules: same input → same output, always |
+| **Explainability** | "The model thinks…" | "Rule X fired because condition Y on line Z" |
+| **Reliability** | Hallucinations possible | MCP validates all LLM claims |
+| **Speed** | API latency on every sample | LLM only invoked when rules don't match |
+| **Self-Improvement** | No learning | Validated LLM findings become new rules |
 
-**Every bug report links directly to a specific, named rule** — no probabilistic reasoning, no API keys, no external dependencies beyond the MCP document server.
+The deterministic rule engine handles **known bug patterns** with 100% reliability. The LLM fallback handles **novel bugs** not yet covered by rules. Over time, the system **learns from LLM discoveries** and converts them into new deterministic rules.
 
 ---
 
@@ -27,106 +27,171 @@ This system **intentionally avoids Large Language Models (LLMs)** for bug detect
 ┌──────────────┐     ┌────────────────────┐     ┌──────────────────┐
 │  Ingestion   │────▶│ Context Inference  │────▶│  MCP Retrieval   │
 │    Agent     │     │      Agent         │     │     Agent        │
-│              │     │                    │     │                  │
-│ Reads CSV:   │     │ • Parse code lines │     │ • Query MCP      │
-│ ID, Context, │     │ • Extract APIs     │     │   server         │
-│ Code         │     │ • Build queries    │     │ • Retrieve docs  │
 └──────────────┘     └────────────────────┘     └────────┬─────────┘
                                                           │
-┌──────────────┐     ┌────────────────────┐              │
-│  Output CSV  │◀────│   Explanation      │◀─────────────┤
-│  Writer      │     │     Agent          │     ┌────────┴─────────┐
-│              │     │                    │     │  Code Analysis   │
-│ ID, Bug Line,│     │ • Format output    │◀────│     Agent        │
-│ Explanation  │     │ • Enrich with MCP  │     │                  │
+┌──────────────┐     ┌────────────────────┐     ┌────────┴─────────┐
+│  Output CSV  │◀────│   Explanation      │◀────│  Code Analysis   │
+│  Writer      │     │     Agent          │     │     Agent        │
 └──────────────┘     └────────────────────┘     │ 21 static rules  │
-                                                 │ Deterministic    │
-                                                 └──────────────────┘
+                                                 └────────┬─────────┘
+                                                          │
+                                                  [BUG FOUND?]
+                                                 YES ↙        ↘ NO
+                                            output.csv    ┌─────────────────┐
+                                                          │  LLM Analysis   │
+                                                          │  (Groq OSS-120B)│
+                                                          └────────┬────────┘
+                                                                   │
+                                                          ┌────────┴────────┐
+                                                          │  MCP Validator  │
+                                                          └────────┬────────┘
+                                                                   │
+                                                           [VALIDATED?]
+                                                          YES ↙      ↘ NO
+                                                   ┌──────────┐   default
+                                                   │ Explanation│
+                                                   │ Agent +    │
+                                                   │ Rule Learn │
+                                                   └────────────┘
 ```
 
 ### Agent Responsibilities
 
-| Agent | Input | Output | Role |
-|---|---|---|---|
-| **IngestionAgent** | CSV file | `List[SampleRecord]` | Parse evaluation CSV (ID, Context, Code) |
-| **ContextInferenceAgent** | SampleRecord | `InferredContext` | Extract RDI API calls, parse lines, generate MCP queries |
-| **MCPRetrievalAgent** | InferredContext | `List[MCPResult]` | Query MCP vector store for relevant documentation |
-| **CodeAnalysisAgent** | Sample + Context + MCP | `RuleViolation` | Apply 21 static analysis rules to find the bug |
-| **ExplanationAgent** | Violation + MCP | `BugReport` | Generate concise, grounded explanation |
-| **Coordinator** (main.py) | — | output.csv | Orchestrate pipeline, validate output |
+| Agent | Role |
+|---|---|
+| **IngestionAgent** | Parse evaluation CSV (ID, Context, Code) |
+| **ContextInferenceAgent** | Extract RDI API calls, parse lines, generate MCP queries |
+| **MCPRetrievalAgent** | Query MCP vector store for relevant documentation |
+| **CodeAnalysisAgent** | Apply 21+ static analysis rules to find bugs (PRIMARY) |
+| **LLMCodeAnalysisAgent** | Groq OSS-120B fallback for unmatched samples (FALLBACK) |
+| **MCPValidatorAgent** | Validate LLM findings against documentation (FIREWALL) |
+| **RuleLearningAgent** | Convert validated LLM findings into new deterministic rules |
+| **ExplanationAgent** | Generate concise, grounded explanations |
 
 ---
 
-## How MCP Provides Semantic Understanding
+## How the LLM Fallback Works
 
-The MCP (Model Context Protocol) server provides **domain knowledge retrieval** without requiring an LLM:
+The LLM is **never used as the primary detection engine**. It only runs when:
 
-1. **Vector Store**: Pre-indexed RDI/SmartRDI documentation using BAAI/bge-base-en-v1.5 embeddings
-2. **Semantic Search**: `search_documents(query)` returns documentation snippets ranked by relevance
-3. **Context Enrichment**: Retrieved docs enrich bug explanations with official API documentation
+1. The deterministic `CodeAnalysisAgent` finds **no matching rule** (`rule_name="no_match"`)
+2. The `--no-llm` flag is **not** set
+3. `LLM_FALLBACK_ENABLED = True` in config
 
+When invoked:
+1. **LLMCodeAnalysisAgent** sends the code to Groq OSS-120B with low temperature (0.15)
+2. LLM returns structured JSON: bug line, type, reasoning, confidence, suggested rule
+3. **MCPValidatorAgent** checks if MCP documentation supports the claim
+4. If validated: the finding replaces the default, and **RuleLearningAgent** persists a new rule
+5. If rejected: the default "no_match" result is kept
+
+---
+
+## How MCP Prevents Hallucination
+
+The MCPValidatorAgent acts as a **hallucination firewall**:
+
+1. Extracts keywords from LLM reasoning and bug type
+2. Compares against keywords in MCP-retrieved documentation
+3. Requires minimum keyword overlap (≥2 shared terms)
+4. Only accepts findings with documentation support
+5. Exception: very high confidence (≥0.9) findings may pass without docs
+
+This ensures the system **never outputs ungrounded LLM claims**.
+
+---
+
+## How Rule Learning Works
+
+When the LLM discovers a new bug pattern that MCP validates:
+
+1. `RuleLearningAgent` extracts the **suggested rule** from the LLM output
+2. Generates a Python function matching the `CodeAnalysisAgent` interface
+3. Uses **hash-based deduplication** to prevent duplicate rules
+4. Persists to `rules/learned_rules.py`
+5. On next run, learned rules are available to the deterministic engine
+
+### Example Learned Rule
+
+```python
+@register_rule("missing_initialization")
+def _check_missing_initialization(lines, code, sample):
+    """
+    Detect variables used in RDI chains without prior initialization.
+    Detection: variable referenced in rdi\\..*\\(var\\) without prior assignment
+    """
+    pattern = re.compile(r"rdi\..*\(var\)", re.IGNORECASE)
+    for line_obj in lines:
+        if pattern.search(line_obj.stripped):
+            return (
+                line_obj.line_number,
+                "Variable used in RDI chain without initialization.",
+                0.85,
+            )
+    return None
 ```
-Code Analysis Agent detects: "iClamp arguments swapped"
-         ↓
-MCP query: "rdi iClamp parameter order usage"
-         ↓
-MCP returns: "iClamp(low, high) sets current clamp limits..."
-         ↓
-Final explanation includes documentation reference
-```
 
-The MCP server is **optional** — the system works fully without it (`--no-mcp` flag). When available, it adds documentation context to explanations.
+---
+
+## Safety Guarantees
+
+1. **Deterministic engine ALWAYS runs first** — LLM never overrides
+2. **MCP validation is REQUIRED** before accepting LLM output
+3. **Learned rules are human-readable** and auditable in `rules/learned_rules.py`
+4. **Hash deduplication** prevents rule explosion
+5. **Confidence thresholds** filter low-quality LLM suggestions
+6. **LLM reasoning is never exposed** directly — only validated, grounded explanations
 
 ---
 
 ## Bug Detection Rules
 
-The CodeAnalysisAgent implements **21 deterministic rules** organized into 6 categories:
+The CodeAnalysisAgent implements **21 deterministic rules** in 6 categories:
 
 ### Category 1: Lifecycle Rules
-| Rule | Description | Example |
-|---|---|---|
-| `lifecycle_order` | RDI_BEGIN() must precede RDI_END() | `RDI_END(); ... RDI_BEGIN();` → error |
+| Rule | Description |
+|---|---|
+| `lifecycle_order` | RDI_BEGIN() must precede RDI_END() |
 
-### Category 2: API Name Validation  
-| Rule | Description | Example |
-|---|---|---|
-| `gibberish_names` | Detect corrupted function names via consonant clusters | `getVesjkctor()` → `getVector()` |
-| `known_typos` | Map known wrong names to correct ones | `iMeans()` → `iMeas()` |
-| `case_sensitivity` | RDI APIs use camelCase | `imeasRange()` → `iMeasRange()` |
+### Category 2: API Name Validation
+| Rule | Description |
+|---|---|
+| `gibberish_names` | Detect corrupted function names via consonant clusters |
+| `known_typos` | Map known wrong names to correct ones |
+| `case_sensitivity` | RDI APIs use camelCase |
 
 ### Category 3: Argument Validation
-| Rule | Description | Example |
-|---|---|---|
-| `iclamp_arg_order` | iClamp(low, high) — first ≤ second | `iClamp(50, -50)` → swap |
-| `vforce_range` | vForce must not exceed vForceRange | `vForce(31).vForceRange(30)` → overflow |
-| `invalid_vforce_range_val` | vForceRange must be a valid AVI64 range | `vForceRange(35 V)` → invalid |
-| `samples_max` | samples() ≤ 8192 | `samples(9216)` → exceeds max |
-| `extra_parameters` | Functions with no params called with args | `readTempThresh(70)` → no args |
-| `missing_parameters` | Required params missing | `getAlarmValue()` → needs pin |
-| `bool_args` | Boolean argument correctness | `digCapBurstSiteUpload(false)` → true |
-| `unit_validation` | Valid RDI units only | `mAh` → `mA` |
+| Rule | Description |
+|---|---|
+| `iclamp_arg_order` | iClamp(low, high) — first ≤ second |
+| `vforce_range` | vForce must not exceed vForceRange |
+| `invalid_vforce_range_val` | vForceRange must be valid AVI64 range |
+| `samples_max` | samples() ≤ 8192 |
+| `extra_parameters` | Functions with no params called with args |
+| `missing_parameters` | Required params missing |
+| `bool_args` | Boolean argument correctness |
+| `unit_validation` | Valid RDI units only |
 
 ### Category 4: Method Chain Validation
-| Rule | Description | Example |
-|---|---|---|
-| `duplicate_calls` | Consecutive same method calls | `.end().end()` → remove duplicate |
-| `terminal_method` | DC chains end with `.execute()` | `.read()` → `.execute()` |
-| `chain_order` | Correct method chain ordering | `rdi.burstUpload.smartVec()` → swap |
+| Rule | Description |
+|---|---|
+| `duplicate_calls` | Consecutive same method calls |
+| `terminal_method` | DC chains end with `.execute()` |
+| `chain_order` | Correct method chain ordering |
 
 ### Category 5: Consistency Checks
-| Rule | Description | Example |
-|---|---|---|
-| `pin_consistency` | Setup pins must match retrieval pins | pin `D0` vs `DO` mismatch |
-| `pin_mismatch_in_chain` | Related operations use same pins | `DPS_1,DPS_2` vs `DPS_0,DPS_1` |
-| `invalid_vector_method` | Valid C++ vector methods only | `.push_forward()` → `.push_back()` |
-| `variable_consistency` | Variables must be declared | `vec_port2` used but `vec_port1` declared |
+| Rule | Description |
+|---|---|
+| `pin_consistency` | Setup pins must match retrieval pins |
+| `pin_mismatch_in_chain` | Related operations use same pins |
+| `invalid_vector_method` | Valid C++ vector methods only |
+| `variable_consistency` | Variables must be declared |
 
 ### Category 6: Scope Rules
-| Rule | Description | Example |
-|---|---|---|
-| `enum_validation` | Correct enum for context | `TA::VECD` with `copyLabel` → `TA::VTT` |
-| `scope_violation` | Operations in correct block | `retrievePmuxPinStatus` inside RDI → after |
+| Rule | Description |
+|---|---|
+| `enum_validation` | Correct enum for context |
+| `scope_violation` | Operations in correct block |
 
 ---
 
@@ -136,13 +201,19 @@ The CodeAnalysisAgent implements **21 deterministic rules** organized into 6 cat
 # 1. Start MCP server (optional, in separate terminal)
 python server/mcp_server.py
 
-# 2. Run pipeline
+# 2. Run full hybrid pipeline
 python code/main.py
 
-# 3. Or run without MCP (rules-only)
+# 3. Run without MCP (rules-only mode)
 python code/main.py --no-mcp
 
-# 4. Custom input/output paths
+# 4. Run without LLM fallback (pure deterministic)
+python code/main.py --no-llm
+
+# 5. Run rules-only (no MCP, no LLM)
+python code/main.py --no-mcp --no-llm
+
+# 6. Custom input/output paths
 python code/main.py --input path/to/input.csv --output path/to/output.csv
 ```
 
@@ -156,8 +227,14 @@ Phase 1: Data Ingestion & Context Inference
 
 Phase 2: MCP Retrieval & Rule-Based Analysis
   ├── Query MCP server with inferred API names
-  ├── Apply 21 static analysis rules
+  ├── Apply 21+ static analysis rules
   └── Select highest-confidence violation
+
+Phase 2.5: LLM Fallback (if no rule matched)
+  ├── Invoke Groq OSS-120B with structured prompt
+  ├── Validate LLM finding against MCP docs
+  ├── If validated: upgrade the violation + learn new rule
+  └── If rejected: keep default
 
 Phase 3: Explanation & Output Generation
   ├── Generate explanation from rule violation
@@ -171,97 +248,36 @@ Phase 4: Validation
 
 ---
 
-## How the System Remains Deterministic
-
-1. **No randomness**: Every rule is a pure function: `code → Optional[violation]`
-2. **Confidence-ranked**: When multiple rules fire, highest confidence wins
-3. **Fixed rule order**: Rules execute in defined priority order
-4. **Reproducible**: Same input always produces identical output
-5. **No external API calls**: No LLM, no cloud services (MCP is local)
-
----
-
-## How to Extend the Rule Set
-
-### Adding a New Rule
-
-1. **Define the rule** in `code/agents/code_analysis_agent.py`:
-
-```python
-def _check_my_new_rule(
-    self, lines: List[CodeLine], code: str, sample: SampleRecord
-) -> Optional[Tuple[int, str, float]]:
-    """Describe what this rule detects."""
-    for line in lines:
-        if line.stripped.startswith("//"):
-            continue
-        if "some_pattern" in line.stripped:
-            return (
-                line.line_number,
-                "Explanation of the bug.",
-                0.90,  # Confidence: 0.0 to 1.0
-            )
-    return None
-```
-
-2. **Register it** in the `analyze()` method's rule_checks list:
-
-```python
-rule_checks = [
-    ...existing rules...
-    ("my_new_rule", self._check_my_new_rule),
-]
-```
-
-3. **Add constants** to `config.py` if needed.
-
-### Adding Known Typos
-
-Edit `config.py`:
-
-```python
-KNOWN_TYPO_CORRECTIONS = {
-    ...existing...
-    "wrongName": "correctName",  # Add new typo mapping
-}
-```
-
-### Adding Valid Getter Functions
-
-```python
-VALID_GETTER_FUNCTIONS = {
-    ...existing...
-    "getNewFunction",  # Add new valid function
-}
-```
-
----
-
 ## Project Structure
 
 ```
 BugHunter initial/
 ├── code/
-│   ├── main.py                    # Coordinator & entry point
-│   ├── config.py                  # Constants, API patterns, thresholds
+│   ├── main.py                       # Coordinator & entry point
+│   ├── config.py                     # Constants, API patterns, thresholds
 │   ├── agents/
-│   │   ├── ingestion_agent.py     # CSV parsing
-│   │   ├── context_agent.py       # API extraction & query generation
-│   │   ├── mcp_retrieval_agent.py # MCP document retrieval
-│   │   ├── code_analysis_agent.py # 21 static analysis rules
-│   │   └── explanation_agent.py   # Bug report generation
+│   │   ├── ingestion_agent.py        # CSV parsing
+│   │   ├── context_agent.py          # API extraction & query generation
+│   │   ├── mcp_retrieval_agent.py    # MCP document retrieval
+│   │   ├── code_analysis_agent.py    # 21 static analysis rules
+│   │   ├── explanation_agent.py      # Bug report generation
+│   │   ├── llm_analysis_agent.py     # LLM fallback (Groq OSS-120B)
+│   │   ├── mcp_validator_agent.py    # MCP-based validation
+│   │   └── rule_learning_agent.py    # Auto rule learning
 │   ├── models/
-│   │   └── data_models.py         # Pydantic-style data contracts
+│   │   └── data_models.py            # Typed data contracts
 │   └── utils/
-│       └── csv_utils.py           # CSV I/O and validation
+│       └── csv_utils.py              # CSV I/O and validation
+├── rules/
+│   └── learned_rules.py              # Auto-learned rules (grows over time)
 ├── server/
-│   ├── mcp_server.py              # FastMCP server (SSE)
-│   ├── storage/                   # Vector store data
-│   └── embedding_model/           # BAAI/bge-base-en-v1.5
-├── samples.csv                    # Input data
-├── output.csv                     # Generated output
-├── requirements.txt               # Dependencies
-└── README.md                      # This file
+│   ├── mcp_server.py                 # FastMCP server (SSE)
+│   ├── storage/                      # Vector store data
+│   └── embedding_model/              # BAAI/bge-base-en-v1.5
+├── samples.csv                       # Input data
+├── output.csv                        # Generated output
+├── requirements.txt                  # Dependencies
+└── README.md                         # This file
 ```
 
 ---
@@ -285,6 +301,9 @@ Strictly 3 columns: **ID**, **Bug Line**, **Explanation**. No metadata, no logs.
 llama-index==0.14.13
 llama-index-embeddings-huggingface
 fastmcp
+groq
 ```
 
 Install: `pip install -r requirements.txt`
+
+Set the Groq API key: `set GROQ_API_KEY=your_key_here` (Windows) or `export GROQ_API_KEY=your_key_here` (Linux/Mac)

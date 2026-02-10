@@ -19,6 +19,15 @@ MCP_QUERY_TOP_K = 5
 MCP_TIMEOUT_SECONDS = 30
 MCP_ENABLED = True
 
+# ── Groq / LLM Fallback ───────────────────────────────────
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+GROQ_MODEL = "openai/gpt-oss-120b"
+LLM_TEMPERATURE = 0.15
+LLM_MAX_TOKENS = 8192
+LLM_CONFIDENCE_THRESHOLD = 0.6   # Minimum LLM confidence to proceed
+LLM_FALLBACK_ENABLED = True      # Master switch for LLM fallback
+LEARNED_RULES_DIR = os.path.join(BASE_DIR, "rules")
+
 # ── Output ─────────────────────────────────────────────────
 OUTPUT_COLUMNS = ["ID", "Bug Line", "Explanation"]
 MAX_EXPLANATION_LENGTH = 500

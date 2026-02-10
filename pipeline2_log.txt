@@ -1,0 +1,428 @@
+﻿python : 13:18:16 [INFO] Coordinator: ΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
+At line:1 char:32
++ ... NG="utf-8"; python code/main.py 
+--input samples2.csv --output output2 ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecifie 
+   d: (13:18:16 [INFO]...ΓòÉΓòÉΓòÉΓòÉΓòÉ  
+  :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeComma 
+   ndError
+ 
+13:18:16 [INFO] Coordinator: PHASE 1: 
+Data Ingestion & Context Inference
+13:18:16 [INFO] Coordinator: ΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉ
+13:18:16 [INFO] agents.ingestion_agent: 
+IngestionAgent initialized with path: 
+samples2.csv
+13:18:16 [INFO] agents.ingestion_agent: 
+Loading samples from: samples2.csv
+13:18:16 [INFO] agents.ingestion_agent:   
+Detected mode: training (columns: 
+['Code', 'Context', 'Correct Code', 
+'Explanation', 'ID'])
+13:18:16 [INFO] agents.ingestion_agent: 
+IngestionAgent loaded 20 samples 
+successfully.
+13:18:16 [INFO] Coordinator: Loaded 20 
+samples.
+
+13:18:16 [INFO] agents.context_agent: 
+ContextInferenceAgent initialized.
+13:18:16 [INFO] Coordinator: Inferred 
+context for 20 samples.
+
+13:18:16 [INFO] Coordinator: ΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉ
+13:18:16 [INFO] Coordinator: PHASE 2: MCP 
+Retrieval & Rule-Based Analysis
+13:18:16 [INFO] Coordinator: ΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉ
+13:18:16 [INFO] 
+agents.mcp_retrieval_agent: 
+MCPRetrievalAgent initialized with 
+server: http://localhost:8003/sse
+13:18:16 [INFO] Coordinator: MCP disabled 
+(--no-mcp flag). Using rules-only mode.
+
+13:18:16 [INFO] 
+agents.code_analysis_agent: 
+CodeAnalysisAgent initialized with rule 
+engine.
+13:18:16 [INFO] 
+agents.code_analysis_agent:   ID=101: Bug 
+on line 1 (rule=enum_validation, 
+conf=0.94)
+13:18:16 [WARNING] 
+agents.code_analysis_agent:   ID=102: No 
+rule matched, defaulting to line 1
+13:18:16 [INFO] 
+agents.code_analysis_agent:   ID=103: Bug 
+on line 1 (rule=iclamp_arg_order, 
+conf=0.97)
+13:18:16 [INFO] 
+agents.code_analysis_agent:   ID=104: Bug 
+on line 2 (rule=terminal_method, 
+conf=0.88)
+13:18:16 [WARNING] 
+agents.code_analysis_agent:   ID=105: No 
+rule matched, defaulting to line 1
+13:18:16 [INFO] 
+agents.code_analysis_agent:   ID=106: Bug 
+on line 1 (rule=missing_parameters, 
+conf=0.92)
+13:18:16 [INFO] 
+agents.code_analysis_agent:   ID=107: Bug 
+on line 1 (rule=known_typos, conf=0.93)
+13:18:16 [INFO] 
+agents.code_analysis_agent:   ID=108: Bug 
+on line 3 (rule=chain_order, conf=0.95)
+13:18:16 [INFO] 
+agents.code_analysis_agent:   ID=109: Bug 
+on line 1 (rule=pin_consistency, 
+conf=0.91)
+13:18:16 [INFO] 
+agents.code_analysis_agent:   ID=110: Bug 
+on line 1 (rule=extra_parameters, 
+conf=0.92)
+13:18:16 [INFO] 
+agents.code_analysis_agent:   ID=111: Bug 
+on line 1 (rule=vforce_range, conf=0.96)
+13:18:16 [WARNING] 
+agents.code_analysis_agent:   ID=112: No 
+rule matched, defaulting to line 1
+13:18:16 [INFO] 
+agents.code_analysis_agent:   ID=113: Bug 
+on line 1 (rule=known_typos, conf=0.93)
+13:18:16 [INFO] 
+agents.code_analysis_agent:   ID=114: Bug 
+on line 3 (rule=scope_violation, 
+conf=0.89)
+13:18:16 [INFO] 
+agents.code_analysis_agent:   ID=115: Bug 
+on line 1 (rule=bool_args, conf=0.90)
+13:18:16 [INFO] 
+agents.code_analysis_agent:   ID=116: Bug 
+on line 1 (rule=samples_max, conf=0.90)
+13:18:16 [INFO] 
+agents.code_analysis_agent:   ID=117: Bug 
+on line 1 (rule=gibberish_names, 
+conf=0.96)
+13:18:16 [WARNING] 
+agents.code_analysis_agent:   ID=118: No 
+rule matched, defaulting to line 1
+13:18:16 [WARNING] 
+agents.code_analysis_agent:   ID=119: No 
+rule matched, defaulting to line 1
+13:18:16 [WARNING] 
+agents.code_analysis_agent:   ID=120: No 
+rule matched, defaulting to line 1
+13:18:16 [INFO] Coordinator: Code 
+analysis complete for 20 samples.
+
+13:18:16 [INFO] Coordinator: ΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉ
+13:18:16 [INFO] Coordinator: PHASE 2.5: 
+LLM Fallback Analysis
+13:18:16 [INFO] Coordinator: ΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉ
+13:18:16 [INFO] Coordinator:   6 
+sample(s) need LLM fallback.
+13:18:16 [INFO] 
+agents.llm_analysis_agent: 
+LLMCodeAnalysisAgent initialized.
+13:18:16 [INFO] 
+agents.mcp_validator_agent: 
+MCPValidatorAgent initialized.
+13:18:16 [INFO] 
+agents.rule_learning_agent: 
+RuleLearningAgent initialized. Rules dir: 
+C:\Users\Admin\Desktop\BugHunter 
+initial\rules, Existing rules: 0
+13:18:17 [INFO] 
+agents.llm_analysis_agent:   Groq client 
+connected.
+13:18:17 [INFO] 
+agents.llm_analysis_agent:   ID=102: LLM 
+fallback invoked (Groq OSS-120B)
+13:18:18 [INFO] httpx: HTTP Request: POST 
+https://api.groq.com/openai/v1/chat/comple
+tions "HTTP/1.1 200 OK"
+13:18:18 [INFO] 
+agents.llm_analysis_agent:   ID=102: LLM 
+finding ΓÇö bug=True, line=2, 
+type=invalid_argument_type, conf=0.96
+13:18:18 [INFO] 
+agents.mcp_validator_agent:   ID=102: 
+Validating LLM finding 
+(type=invalid_argument_type, line=2)
+13:18:18 [INFO] 
+agents.mcp_validator_agent:   ID=102: No 
+MCP docs, but LLM confidence 0.96 >= 0.85 
+ΓÇö accepting.
+13:18:18 [INFO] 
+agents.rule_learning_agent:   Γ£ô Learned 
+new rule: 'vforce_numeric_argument' 
+(severity=HIGH, hash=2cf8189a)
+13:18:18 [INFO] 
+agents.llm_analysis_agent:   ID=105: LLM 
+fallback invoked (Groq OSS-120B)
+13:18:19 [INFO] httpx: HTTP Request: POST 
+https://api.groq.com/openai/v1/chat/comple
+tions "HTTP/1.1 200 OK"
+13:18:19 [INFO] 
+agents.llm_analysis_agent:   ID=105: LLM 
+finding ΓÇö bug=True, line=4, 
+type=invalid_argument_type, conf=0.78
+13:18:19 [INFO] 
+agents.mcp_validator_agent:   ID=105: 
+Validating LLM finding 
+(type=invalid_argument_type, line=4)
+13:18:19 [INFO] Coordinator:   ID=105: 
+MCP rejected LLM finding ΓÇö No MCP 
+documentation available for validation.
+13:18:19 [INFO] 
+agents.llm_analysis_agent:   ID=112: LLM 
+fallback invoked (Groq OSS-120B)
+13:18:20 [INFO] httpx: HTTP Request: POST 
+https://api.groq.com/openai/v1/chat/comple
+tions "HTTP/1.1 200 OK"
+13:18:20 [INFO] 
+agents.llm_analysis_agent:   ID=112: LLM 
+finding ΓÇö bug=True, line=1, 
+type=invalid_api_call, conf=0.92
+13:18:20 [INFO] 
+agents.mcp_validator_agent:   ID=112: 
+Validating LLM finding 
+(type=invalid_api_call, line=1)
+13:18:20 [INFO] 
+agents.mcp_validator_agent:   ID=112: No 
+MCP docs, but LLM confidence 0.92 >= 0.85 
+ΓÇö accepting.
+13:18:20 [INFO] 
+agents.rule_learning_agent:   Γ£ô Learned 
+new rule: 
+'invalid_addwaveform_on_waveform' 
+(severity=HIGH, hash=ec71cd49)
+13:18:20 [INFO] 
+agents.llm_analysis_agent:   ID=118: LLM 
+fallback invoked (Groq OSS-120B)
+13:18:21 [INFO] httpx: HTTP Request: POST 
+https://api.groq.com/openai/v1/chat/comple
+tions "HTTP/1.1 200 OK"
+13:18:21 [INFO] 
+agents.llm_analysis_agent:   ID=118: LLM 
+finding ΓÇö bug=True, line=1, 
+type=invalid_argument, conf=0.88
+13:18:21 [INFO] 
+agents.mcp_validator_agent:   ID=118: 
+Validating LLM finding 
+(type=invalid_argument, line=1)
+13:18:21 [INFO] 
+agents.mcp_validator_agent:   ID=118: No 
+MCP docs, but LLM confidence 0.88 >= 0.85 
+ΓÇö accepting.
+13:18:21 [INFO] 
+agents.rule_learning_agent:   Γ£ô Learned 
+new rule: 
+'smartvec_readmode_invalid_enum' 
+(severity=HIGH, hash=611a1784)
+13:18:21 [INFO] 
+agents.llm_analysis_agent:   ID=119: LLM 
+fallback invoked (Groq OSS-120B)
+13:18:25 [INFO] httpx: HTTP Request: POST 
+https://api.groq.com/openai/v1/chat/comple
+tions "HTTP/1.1 200 OK"
+13:18:25 [INFO] 
+agents.llm_analysis_agent:   ID=119: LLM 
+finding ΓÇö bug=True, line=2, 
+type=invalid_argument_type, conf=0.96
+13:18:25 [INFO] 
+agents.mcp_validator_agent:   ID=119: 
+Validating LLM finding 
+(type=invalid_argument_type, line=2)
+13:18:25 [INFO] 
+agents.mcp_validator_agent:   ID=119: No 
+MCP docs, but LLM confidence 0.96 >= 0.85 
+ΓÇö accepting.
+13:18:25 [INFO] 
+agents.rule_learning_agent:   Γ£ô Learned 
+new rule: 'vforce_numeric_argument' 
+(severity=HIGH, hash=928d8344)
+13:18:25 [INFO] 
+agents.llm_analysis_agent:   ID=120: LLM 
+fallback invoked (Groq OSS-120B)
+13:18:26 [INFO] httpx: HTTP Request: POST 
+https://api.groq.com/openai/v1/chat/comple
+tions "HTTP/1.1 200 OK"
+13:18:26 [INFO] 
+agents.llm_analysis_agent:   ID=120: LLM 
+finding ΓÇö bug=True, line=1, 
+type=wrong_argument_order, conf=0.81
+13:18:26 [INFO] 
+agents.mcp_validator_agent:   ID=120: 
+Validating LLM finding 
+(type=wrong_argument_order, line=1)
+13:18:26 [INFO] Coordinator:   ID=120: 
+MCP rejected LLM finding ΓÇö No MCP 
+documentation available for validation.
+13:18:26 [INFO] Coordinator: LLM fallback 
+complete: 4 upgraded, 2 rejected, 4 rules 
+learned.
+
+13:18:26 [INFO] Coordinator: ΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉ
+13:18:26 [INFO] Coordinator: PHASE 3: 
+Explanation & Output Generation
+13:18:26 [INFO] Coordinator: ΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉ
+13:18:26 [INFO] agents.explanation_agent: 
+ExplanationAgent initialized.
+13:18:26 [INFO] agents.explanation_agent: 
+  Report ID=101: line 1, 
+rule=enum_validation
+13:18:26 [INFO] agents.explanation_agent: 
+  Report ID=102: line 2, 
+rule=llm_invalid_argument_type
+13:18:26 [INFO] agents.explanation_agent: 
+  Report ID=103: line 1, 
+rule=iclamp_arg_order
+13:18:26 [INFO] agents.explanation_agent: 
+  Report ID=104: line 2, 
+rule=terminal_method
+13:18:26 [INFO] agents.explanation_agent: 
+  Report ID=105: line 1, rule=no_match
+13:18:26 [INFO] agents.explanation_agent: 
+  Report ID=106: line 1, 
+rule=missing_parameters
+13:18:26 [INFO] agents.explanation_agent: 
+  Report ID=107: line 1, rule=known_typos
+13:18:26 [INFO] agents.explanation_agent: 
+  Report ID=108: line 3, rule=chain_order
+13:18:26 [INFO] agents.explanation_agent: 
+  Report ID=109: line 1, 
+rule=pin_consistency
+13:18:26 [INFO] agents.explanation_agent: 
+  Report ID=110: line 1, 
+rule=extra_parameters
+13:18:26 [INFO] agents.explanation_agent: 
+  Report ID=111: line 1, rule=vforce_range
+13:18:26 [INFO] agents.explanation_agent: 
+  Report ID=112: line 1, 
+rule=llm_invalid_api_call
+13:18:26 [INFO] agents.explanation_agent: 
+  Report ID=113: line 1, rule=known_typos
+13:18:26 [INFO] agents.explanation_agent: 
+  Report ID=114: line 3, 
+rule=scope_violation
+13:18:26 [INFO] agents.explanation_agent: 
+  Report ID=115: line 1, rule=bool_args
+13:18:26 [INFO] agents.explanation_agent: 
+  Report ID=116: line 1, rule=samples_max
+13:18:26 [INFO] agents.explanation_agent: 
+  Report ID=117: line 1, 
+rule=gibberish_names
+13:18:26 [INFO] agents.explanation_agent: 
+  Report ID=118: line 1, 
+rule=llm_invalid_argument
+13:18:26 [INFO] agents.explanation_agent: 
+  Report ID=119: line 2, 
+rule=llm_invalid_argument_type
+13:18:26 [INFO] agents.explanation_agent: 
+  Report ID=120: line 1, rule=no_match
+13:18:26 [INFO] Coordinator: Generated 20 
+bug reports.
+
+13:18:26 [INFO] utils.csv_utils: Writing 
+20 reports to: output2.csv
+13:18:26 [INFO] utils.csv_utils: Output 
+CSV written successfully: output2.csv
+13:18:26 [INFO] Coordinator: ΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉ
+13:18:26 [INFO] Coordinator: PHASE 4: 
+Validation & Summary
+13:18:26 [INFO] Coordinator: ΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓ
+òÉΓòÉΓòÉΓòÉ
+13:18:26 [INFO] Coordinator: Γ£ô Output 
+CSV validation PASSED
+
+============================================================
+   [*] Agentic Bug Hunter
+   Hybrid C++ Bug Detection System
+   Deterministic Rules + LLM Fallback + MCP
+   "LLM proposes, MCP validates, rules enforce."
+============================================================
+
+
+============================================================
+   PIPELINE COMPLETE
+============================================================
+   Samples processed:  20
+   Reports generated:  20
+   LLM upgrades:       4
+   LLM rejected:       2
+   Rules learned:      4
+   Output file:        output2.csv
+   MCP integration:    disabled
+   LLM fallback:       active
+   Validation:         PASSED
+   Total time:         9.84s
+============================================================
+
++----+----------+--------------------+--------------------------------------------+
+| ID | Bug Line | Rule               | Explanation (preview)                      |
++----+----------+--------------------+--------------------------------------------+
+| 101 |        1 | enum_validation    | Wrong vector edit mode: when copyLabel() i... |
+| 102 |        2 | llm_invalid_argume | Line 2: invalid_argument_type ΓÇö The vForce... |
+| 103 |        1 | iclamp_arg_order   | iClamp argument order error: iClamp(20.0, ... |
+| 104 |        2 | terminal_method    | Wrong terminal method: 'read()' should be ... |
+| 105 |        1 | no_match           | Potential API misuse detected in code snip... |
+| 106 |        1 | missing_parameters | Missing parameter: getAlarmValue() require... |
+| 107 |        1 | known_typos        | Incorrect function name: '.imeas()' should... |
+| 108 |        3 | chain_order        | Incorrect chain order: 'rdi.burstUpload.sm... |
+| 109 |        1 | pin_consistency    | Pin name mismatch: pin 'D1' in setup (line... |
+| 110 |        1 | extra_parameters   | Extra parameter: readTempThresh() takes no... |
+| 111 |        1 | vforce_range       | Range overflow: vForce(31.0 V) exceeds vFo... |
+| 112 |        1 | llm_invalid_api_ca | Line 1: invalid_api_call ΓÇö The method chai... |
+| 113 |        1 | known_typos        | Incorrect function name: '.push_forward()'... |
+| 114 |        3 | scope_violation    | Scope violation: retrievePmuxPinStatus() s... |
+| 115 |        1 | bool_args          | digCapBurstSiteUpload should be set to tru... |
+| 116 |        1 | samples_max        | Sample count 9000 exceeds maximum allowed ... |
+| 117 |        1 | gibberish_names    | Invalid function name 'getFFC()' ΓÇö this ap... |
+| 118 |        1 | llm_invalid_argume | Line 1: invalid_argument ΓÇö The readMode me... |
+| 119 |        2 | llm_invalid_argume | Line 2: invalid_argument_type ΓÇö The vForce... |
+| 120 |        1 | no_match           | Potential API misuse detected in code snip... |
++----+----------+--------------------+--------------------------------------------+

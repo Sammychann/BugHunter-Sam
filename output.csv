@@ -1,3 +1,4 @@
+
 ID,Bug Line,Explanation
 2,3,"Invalid vForceRange(35.0 V): this is not a valid range for AVI64. Valid ranges are: 2, 5, 10, 15, 20, 30 V."
 3,4,Range overflow: vForce(31.0 V) exceeds vForceRange(30.0 V). The programmed force value must always match the selected range to avoid range overflow warnings.
