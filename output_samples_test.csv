@@ -1,0 +1,21 @@
+ID,Bug Line,Explanation
+2,3,"Invalid vForceRange(35.0 V): this is not a valid range for AVI64. Valid ranges are: 2, 5, 10, 15, 20, 30 V."
+3,4,Range overflow: vForce(31.0 V) exceeds vForceRange(30.0 V). The programmed force value must always match the selected range to avoid range overflow warnings.
+4,3,"iClamp argument order error: iClamp(50.0, -50.0) has low and high values exchanged. First argument should be the low clamp, second should be high. Correct: iClamp(-50.0, 50.0)."
+9,3,Duplicate method call: .end().end() — the same function is called twice consecutively. Remove the duplicate .end() call.
+10,2,Incorrect function name: '.readHumanSeniority()' should be '.readHumSensor()'. This is a known API naming error.
+11,2,Incorrect function name: '.iMeans()' should be '.iMeas()'. This is a known API naming error.
+13,3,Invalid function name 'getVesjkctor()' — this appears to be a corrupted API name. The closest valid function is 'getVector()'.
+14,7,Missing parameter: getAlarmValue() requires a pin name string parameter.
+16,1,"Wrong vector edit mode: when copyLabel() is used, vecEditMode must be TA::VTT, not TA::VECD. VTT mode is required for label-based vector editing."
+17,8,Invalid function name 'getFFC()' — this appears to be a corrupted API name. The closest valid function is 'getFFV()'.
+20,5,Sample count 9216 exceeds maximum allowed value of 8192.
+22,3,Extra parameter: readTempThresh() takes no parameters. Remove the argument to fix this API call.
+23,25,"Incorrect chain order: 'rdi.burstUpload.smartVec()' should be 'rdi.smartVec().burstUpload()'. burstUpload() is a method of smartVec, not the other way around."
+24,3,Pin name mismatch: pin 'D0' in setup (line 3) does not match 'DO' in retrieval (line 6). These look like they should be the same pin (possible typo: 'D0' vs 'DO').
+25,5,"Lifecycle order error: RDI_END() appears before RDI_BEGIN(), inverting the intended session/transaction scope. RDI_BEGIN() must be called before any RDI operations, followed by RDI_END() to close the scope."
+26,10,Wrong terminal method: 'read()' should be 'execute()' in this RDI measurement chain. DC and func operations require .execute() to complete.
+27,2,Incorrect function name: '.imeasRange()' should be '.iMeasRange()'. This is a known API naming error.
+29,4,"Scope violation: retrievePmuxPinStatus() should be called after RDI_END(), not inside the RDI_BEGIN/RDI_END block. Status retrieval requires the execution block to complete first."
+31,5,Incorrect function name: '.push_forward()' should be '.push_back()'. This is a known API naming error.
+32,2,"Multiple lines end with .burst() instead of .execute(). In most RDI chains, the terminal method should be .execute()."

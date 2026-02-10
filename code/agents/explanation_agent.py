@@ -35,8 +35,7 @@ logger = logging.getLogger(__name__)
 class ExplanationAgent:
     """
     Agent #5: Explanation Generation
-    Constructs the final human-readable explanation for each bug,
-    grounded in rule-based analysis and MCP documentation.
+    Produces the final bug explanation by citing relevant RDI/SmartRDI documentation excerpts obtained from the MCP server, explaining how the detected code line violates a specific documented usage rule or lifecycle constraint.
     """
 
     def __init__(self):
