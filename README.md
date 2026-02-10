@@ -23,37 +23,7 @@ The deterministic rule engine handles **known bug patterns** with 100% reliabili
 
 ## Architecture
 
-```
-┌──────────────┐     ┌────────────────────┐     ┌──────────────────┐
-│  Ingestion   │────▶│ Context Inference  │────▶│  MCP Retrieval   │
-│    Agent     │     │      Agent         │     │     Agent        │
-└──────────────┘     └────────────────────┘     └────────┬─────────┘
-                                                          │
-┌──────────────┐     ┌────────────────────┐     ┌────────┴─────────┐
-│  Output CSV  │◀────│   Explanation      │◀────│  Code Analysis   │
-│  Writer      │     │     Agent          │     │     Agent        │
-└──────────────┘     └────────────────────┘     │ 21 static rules  │
-                                                 └────────┬─────────┘
-                                                          │
-                                                  [BUG FOUND?]
-                                                 YES ↙        ↘ NO
-                                            output.csv    ┌─────────────────┐
-                                                          │  LLM Analysis   │
-                                                          │  (Groq OSS-120B)│
-                                                          └────────┬────────┘
-                                                                   │
-                                                          ┌────────┴────────┐
-                                                          │  MCP Validator  │
-                                                          └────────┬────────┘
-                                                                   │
-                                                           [VALIDATED?]
-                                                          YES ↙      ↘ NO
-                                                   ┌──────────┐   default
-                                                   │ Explanation│
-                                                   │ Agent +    │
-                                                   │ Rule Learn │
-                                                   └────────────┘
-```
+<img width="2692" height="1524" alt="image" src="https://github.com/user-attachments/assets/e137eb15-6acb-4d50-b94c-0fc54268102b" />
 
 ### Agent Responsibilities
 
