@@ -3,12 +3,12 @@ ID,Bug Line,Explanation
 3,4,Range overflow: vForce(31.0 V) exceeds vForceRange(30.0 V). The programmed force value must always match the selected range to avoid range overflow warnings.
 4,3,"iClamp argument order error: iClamp(50.0, -50.0) has low and high values exchanged. First argument should be the low clamp, second should be high. Correct: iClamp(-50.0, 50.0)."
 9,3,Duplicate method call: .end().end() — the same function is called twice consecutively. Remove the duplicate .end() call.
-10,4,Invalid function name 'getHumanSeniority()' — this appears to be a corrupted API name. The closest valid function is 'getHumSensor()'.
+10,2,Incorrect function name: '.readHumanSeniority()' should be '.readHumSensor()'. This is a known API naming error.
 11,2,Incorrect function name: '.iMeans()' should be '.iMeas()'. This is a known API naming error.
-13,1,Potential API misuse detected in code snippet.
+13,3,Invalid function name 'getVesjkctor()' — this appears to be a corrupted API name. The closest valid function is 'getVector()'.
 14,7,Missing parameter: getAlarmValue() requires a pin name string parameter.
 16,1,"Wrong vector edit mode: when copyLabel() is used, vecEditMode must be TA::VTT, not TA::VECD. VTT mode is required for label-based vector editing."
-17,8,Incorrect function name: '.getFFC()' should be '.getFFV()'. This is a known API naming error.
+17,8,Invalid function name 'getFFC()' — this appears to be a corrupted API name. The closest valid function is 'getFFV()'.
 20,5,Sample count 9216 exceeds maximum allowed value of 8192.
 22,3,Extra parameter: readTempThresh() takes no parameters. Remove the argument to fix this API call.
 23,25,"Incorrect chain order: 'rdi.burstUpload.smartVec()' should be 'rdi.smartVec().burstUpload()'. burstUpload() is a method of smartVec, not the other way around."
