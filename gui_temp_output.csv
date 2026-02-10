@@ -1,0 +1,2 @@
+ID,Bug Line,Explanation
+1,4,"Lifecycle order error: RDI_END() appears before RDI_BEGIN(), inverting the intended session/transaction scope. RDI_BEGIN() must be called before any RDI operations, followed by RDI_END() to close the scope."

@@ -1,0 +1,15 @@
+ID,Code,Context
+1,"#include <rdi.h>
+
+int main() {
+    RDI_END();                 
+    rdi.dc()
+        .pin(""DPS_1"")
+        .vForce(10.0)
+        .vForceRange(30.0)
+        .execute();
+
+    RDI_BEGIN();               
+    return 0;
+}
+",File: test1.cpp
