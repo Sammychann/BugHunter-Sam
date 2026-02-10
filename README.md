@@ -40,6 +40,11 @@ The deterministic rule engine handles **known bug patterns** with 100% reliabili
 
 ---
 
+## Minimalistic GUI using Tikinter
+
+<img width="1249" height="915" alt="image" src="https://github.com/user-attachments/assets/b0db03e2-335d-4479-86d1-55368396d99b" />
+
+
 ## How the LLM Fallback Works
 
 The LLM is **never used as the primary detection engine**. It only runs when:
